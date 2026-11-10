@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Shop</title>
+<style>
+:root{--bg:#f8fafc;--panel:#ffffff;--ink:#0f172a;--mute:#64748b;--line:#e2e8f0;--navy:#003087;--pp-blue:#0070ba;--pp-hover:#005ea6;--go:#059669;--warn:#d97706;--warnbg:#fef3c7;--gobg:#ecfdf5;--radius:12px}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Inter",sans-serif;-webkit-font-smoothing:antialiased}
+button,textarea,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--pp-blue);outline-offset:2px}
+
+.top{display:flex;align-items:center;gap:10px;padding:0 20px;height:62px;background:var(--panel);border-bottom:1px solid var(--line);flex:none;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.02em}
+.mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--pp-blue),var(--navy));display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,112,186,.25)}
+.mark svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hackathon-tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:linear-gradient(135deg,#0070ba,#003087);color:#fff;padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center}
+.sp{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--mute);cursor:default;transition:all .15s}
+.chip i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.chip.ok{background:var(--gobg);color:var(--go);border-color:#a7f3d0}
+.chip.ok i{box-shadow:0 0 6px #10b981;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.chip.no{background:var(--warnbg);color:var(--warn);border-color:#fde68a;cursor:pointer}
+.budget-chip{cursor:pointer;background:#f1f5f9;border-color:#cbd5e1;color:#334155}
+.budget-chip:hover{background:#e2e8f0;border-color:#94a3b8;color:#0f172a}
+.ghost{border:0;background:none;color:var(--mute);padding:6px 10px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-weight:550;font-size:13.5px;transition:all .15s}
+.ghost:hover{background:var(--bg);color:var(--ink)}
+
+#log{flex:1;overflow-y:auto;padding:24px 16px 8px;scroll-behavior:smooth}
+.col{max-width:820px;margin:0 auto}
+
+.hero{padding:42px 0 16px;text-align:center}
+.hero-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;background:#eff6ff;color:var(--pp-blue);font-size:12px;font-weight:650;margin-bottom:14px;border:1px solid #bfdbfe}
+.hero h1{margin:0 0 10px;font-size:32px;line-height:1.2;letter-spacing:-.03em;color:#0f172a}
+.hero p{margin:0 auto 24px;color:var(--mute);max-width:56ch;font-size:15px;line-height:1.6}
+.ideas{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;max-width:760px;margin:0 auto}
+.idea{border:1px solid var(--line);background:#fff;border-radius:10px;padding:12px 14px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.03);transition:all .15s}
+.idea:hover{border-color:var(--pp-blue);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,112,186,.1)}
+.idea-icon{font-size:18px;line-height:1;flex:none}
+.idea-text{font-size:13px;font-weight:550;color:#1e293b;line-height:1.35}
+
+.row{display:flex;margin:18px 0;animation:fadeIn .2s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.row.u{justify-content:flex-end}
+.u .bub{background:linear-gradient(135deg,#003087,#001e54);color:#fff;border-radius:16px 16px 4px 16px;padding:11px 16px;max-width:80%;white-space:pre-wrap;box-shadow:0 2px 8px rgba(0,48,135,.15)}
+.b .bub{max-width:100%;white-space:pre-wrap;line-height:1.6}
+.b .bub a{color:var(--pp-blue);word-break:break-all}
+.b .who{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--pp-blue),var(--navy));flex:none;margin-right:12px;margin-top:2px;display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,112,186,.2)}
+.b .who svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.b .body{min-width:0;flex:1}
+.err .bub{color:#dc2626;background:#fef2f2;border:1px solid #fee2e2;border-radius:10px;padding:10px 14px}
+
+.quote-box{margin-top:14px;background:linear-gradient(145deg,#002566 0%,#001438 100%);color:#fff;border-radius:14px;padding:18px;box-shadow:0 10px 25px rgba(0,37,102,.25);border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:12px}
+.qb-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.qb-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);padding:4px 11px;border-radius:99px;font-size:11.5px;font-weight:650;letter-spacing:.02em;text-transform:uppercase}
+.qb-badge i{width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981}
+.qb-price{font-size:24px;font-weight:800;letter-spacing:-.03em;color:#fff}
+.qb-text{font-size:13px;color:#c7d7f7;line-height:1.45}
+.qb-btns{display:flex;gap:10px;margin-top:4px}
+.qb-btn-yes{background:linear-gradient(135deg,#0070ba,#005ea6);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:650;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 4px 12px rgba(0,112,186,.3);transition:all .15s}
+.qb-btn-yes:hover{background:#005ea6;transform:translateY(-1px)}
+.qb-btn-no{background:rgba(255,255,255,.08);color:#e2e8f0;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;transition:all .15s}
+.qb-btn-no:hover{background:rgba(255,255,255,.16)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:14px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 6px rgba(0,0,0,.04);transition:all .15s}
+.tile:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08);border-color:#cbd5e1}
+.pic{position:relative;height:140px;background:#f1f5f9;display:grid;place-items:center;overflow:hidden}
+.pic img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .2s}
+.tile:hover .pic img{transform:scale(1.04)}
+.off{position:absolute;top:8px;left:8px;background:var(--go);color:#fff;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:6px;box-shadow:0 2px 4px rgba(5,150,105,.2)}
+.info{padding:12px 14px 14px;display:flex;flex-direction:column;gap:3px;flex:1}
+.nm{font-weight:650;line-height:1.35;font-size:14px;color:#0f172a}
+.br{font-size:12.5px;color:var(--mute)}
+.pr{margin-top:6px;font-size:18px;font-weight:750;color:#0f172a}
+.pr s{font-size:13px;font-weight:400;color:var(--mute);margin-left:6px}
+.mt{font-size:12px;color:var(--mute);margin-top:2px}
+.buy{margin-top:10px;border:0;background:linear-gradient(135deg,var(--pp-blue),var(--navy));color:#fff;border-radius:8px;padding:8px 10px;font-weight:650;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px rgba(0,112,186,.2);transition:all .15s}
+.buy:hover{background:var(--pp-hover);transform:translateY(-1px)}
+.buy:disabled{background:#cbd5e1;cursor:not-allowed;box-shadow:none;transform:none}
+
+.dots{display:inline-flex;gap:4px;padding:8px 0}
+.dots i{width:7px;height:7px;border-radius:50%;background:#9aa7bd;animation:bl 1.1s infinite ease-in-out}
+.dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
+@keyframes bl{0%,80%,100%{opacity:.3}40%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.dots i{animation:none;opacity:.7}}
+
+.dock{flex:none;padding:12px 16px 16px;background:linear-gradient(var(--bg) 0,var(--bg))}
+.box{max-width:820px;margin:0 auto;display:flex;align-items:flex-end;gap:10px;background:var(--panel);border:1px solid #cbd5e1;border-radius:14px;padding:8px 8px 8px 16px;box-shadow:0 4px 14px rgba(0,0,0,.05);transition:border-color .15s}
+.box:focus-within{border-color:var(--pp-blue);box-shadow:0 0 0 3px rgba(0,112,186,.12)}
+textarea{flex:1;border:0;outline:0;resize:none;background:none;max-height:140px;padding:8px 0;line-height:1.45;font-size:15px}
+.send{border:0;background:linear-gradient(135deg,var(--pp-blue),var(--navy));color:#fff;border-radius:10px;width:40px;height:40px;cursor:pointer;display:grid;place-items:center;flex:none;transition:all .15s}
+.send:hover{background:var(--pp-hover)}
+.send:disabled{background:#cbd5e1;cursor:not-allowed}
+.send svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fine{max-width:820px;margin:8px auto 0;font-size:12px;color:var(--mute);text-align:center;letter-spacing:-.01em}
+@media (max-width:560px){.top{padding:0 12px}.hero h1{font-size:24px}#sb{display:none}.ideas{grid-template-columns:1fr}}
+
+.view{display:inline-flex;gap:0;margin-top:14px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.view button{border:0;background:none;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--mute);transition:all .15s}
+.view button[aria-pressed=true]{background:var(--navy);color:#fff}
+.gridwrap{margin-top:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.03)}
+.gridwrap .ag-theme-host{width:100%}
+.gbuy{border:0;background:var(--pp-blue);color:#fff;border-radius:6px;padding:4px 12px;font-weight:650;font-size:12.5px;cursor:pointer;line-height:1.6}
+.gbuy:hover{background:var(--pp-hover)}
+.gbuy:disabled{background:#cbd5e1;cursor:not-allowed}
+.gimg{width:40px;height:40px;object-fit:contain;display:block;margin:auto}
+
+.panel{position:fixed;top:62px;right:0;bottom:0;width:min(580px,100%);background:var(--panel);border-left:1px solid var(--line);box-shadow:-8px 0 28px rgba(15,26,46,.1);padding:20px;display:none;flex-direction:column;gap:12px;z-index:15}
+.panel.open{display:flex}
+.panel h2{margin:0;font-size:18px;font-weight:700}
+.panel .ph{display:flex;align-items:center;justify-content:space-between}
+#og{flex:1;min-height:200px}
+
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px;z-index:30;overflow-y:auto;animation:fadeIn .15s ease-out}
+.modal-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 40px rgba(15,23,42,.2);width:min(460px,100%);padding:24px;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 32px);overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px;color:#0f172a}
+.modal-desc{margin:0;font-size:13.5px;color:var(--mute);line-height:1.5}
+.cfg-presets{display:flex;align-items:center;gap:8px}
+.cfg-presets-label{font-size:12px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.03em}
+.cfg-preset{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:600;color:#334155;cursor:pointer;transition:all .15s}
+.cfg-preset:hover{background:#e2e8f0;border-color:var(--pp-blue);color:var(--pp-blue)}
+.cfg-section{display:flex;flex-direction:column;gap:7px}
+.cfg-label-row{display:flex;justify-content:space-between;align-items:baseline}
+.cfg-label{font-size:14px;font-weight:650;color:#1e293b}
+.cfg-hint{font-size:12px;color:var(--mute)}
+.cfg-stepper{display:flex;align-items:center;gap:6px}
+.cfg-input-wrap{position:relative;flex:1;display:flex;align-items:center}
+.cfg-currency{position:absolute;left:10px;font-weight:700;color:var(--mute);pointer-events:none}
+.cfg-input{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px 9px 24px;font-size:16px;font-weight:700;color:#0f172a;outline:0}
+.cfg-input:focus{border-color:var(--pp-blue)}
+.cfg-step-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 10px;font-size:12.5px;font-weight:650;color:#1e293b;cursor:pointer;flex:none;transition:all .15s}
+.cfg-step-btn:hover{background:var(--bg);border-color:var(--navy)}
+.cfg-progress-wrap{display:flex;flex-direction:column;gap:5px;margin-top:2px}
+.cfg-progress-bar{height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden}
+.cfg-progress-fill{height:100%;background:linear-gradient(90deg,var(--go),#10b981);border-radius:99px;transition:width .3s}
+.cfg-info-box{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+.cfg-info-row{display:flex;justify-content:space-between}
+.cfg-cap-note{font-size:11.5px;color:var(--mute);margin-top:4px;border-top:1px dashed var(--line);padding-top:8px;line-height:1.45}
+.cfg-status{border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600}
+.cfg-status.ok{background:var(--gobg);color:var(--go);border:1px solid #a7f3d0}
+.cfg-status.err{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
+
+.mcp-chip{background:#f5f3ff;border-color:#ddd6fe;color:#7c3aed;cursor:pointer;font-weight:650}
+.mcp-chip:hover{background:#ede9fe;border-color:#c4b5fd;color:#6d28d9}
+.mcp-badge{font-size:10.5px;font-weight:700;letter-spacing:.03em;background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:2px 8px;border-radius:6px;text-transform:uppercase}
+.mcp-copy-box{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.mcp-copy-label{font-size:12px;font-weight:650;color:#334155}
+.mcp-copy-row{display:flex;gap:8px}
+.mcp-url-field{flex:1;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:13px;color:#0f172a;outline:0}
+.mcp-copy-btn{border:0;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border-radius:8px;padding:8px 14px;font-weight:650;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;flex:none}
+.mcp-copy-btn:hover{background:#5b21b6;transform:translateY(-1px)}
+.mcp-instructions{display:flex;flex-direction:column;gap:9px;font-size:13px;color:#334155}
+.mcp-tab-head{font-size:13.5px;font-weight:700;color:#0f172a}
+.mcp-step{display:flex;align-items:flex-start;gap:10px;line-height:1.45}
+.mcp-step-num{width:20px;height:20px;border-radius:50%;background:#f5f3ff;color:#7c3aed;font-weight:750;font-size:11.5px;display:grid;place-items:center;flex:none;margin-top:1px;border:1px solid #ddd6fe}
+.mcp-details{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12.5px;background:#f8fafc}
+.mcp-summary{cursor:pointer;font-weight:600;color:#475569}
+.mcp-code-wrap{position:relative;margin-top:8px}
+.mcp-code-wrap pre{background:#0f172a;color:#f8fafc;padding:12px;border-radius:8px;overflow-x:auto;margin:0;font-size:12px;line-height:1.45}
+.mcp-copy-mini{position:absolute;top:6px;right:6px;border:0;background:rgba(255,255,255,.15);color:#fff;border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;cursor:pointer}
+.mcp-copy-mini:hover{background:rgba(255,255,255,.25)}
+
+.sb-chip{background:#fffbeb;border-color:#fde68a;color:#b45309;cursor:pointer;font-weight:650}
+.sb-chip:hover{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+.sb-creds-box{margin-top:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.scc-header{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#92400e}
+.scc-grid{display:flex;flex-direction:column;gap:6px}
+.scc-item{display:flex;align-items:center;gap:8px;font-size:12.5px;background:#fff;border:1px solid #fef3c7;padding:6px 10px;border-radius:6px}
+.scc-lbl{font-weight:650;color:#78350f;flex:none;min-width:65px}
+.scc-item code{flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;color:#0f172a;word-break:break-all}
+.scc-copy{border:0;background:#fef3c7;color:#92400e;border-radius:4px;padding:3px 8px;font-size:11.5px;font-weight:650;cursor:pointer;flex:none;transition:all .15s}
+.scc-copy:hover{background:#fde68a}
+</style></head><body>
+<header class="top">
+  <div class="brand">
+    <span class="mark"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>
+    <span>AI Shop</span>
+    <span class="hackathon-tag">PayPal Hackathon</span>
+  </div>
+  <span class="sp"></span>
+  <span id="pp" class="chip"><i></i><span>PayPal</span></span>
+  <button id="sb-chip" class="chip sb-chip" type="button" title="View PayPal Sandbox Test Login for Judges">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <span>Sandbox Test Account</span>
+  </button>
+  <button id="mcp-btn" class="chip mcp-chip" type="button" title="Connect external AI agents (Claude, Cursor, MCP)">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    <span>MCP Server</span>
+  </button>
+  <button id="budget-chip" class="chip budget-chip" type="button" title="Click to view/change spending limits">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <span id="budget-txt">Limit: $50 / $100</span>
+  </button>
+  <button id="cfg-btn" class="ghost" type="button" title="Spending Limits" aria-label="Settings">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Settings
+  </button>
+  <button id="ord" class="ghost" type="button">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Orders
+  </button>
+  <button id="out" class="ghost" type="button">Sign out</button>
+</header>
+
+<main id="log"><div class="col" id="col">
+  <section class="hero" id="hero">
+    <div class="hero-pill">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      The Future of Online Shopping &middot; PayPal Sandbox Vault
+    </div>
+    <h1>Shop by Talking. Pay in One Step.</h1>
+    <p>Your autonomous AI shopping companion. Search live retailer catalogs in real time, compare items in AG Grid, and securely checkout via PayPal Sandbox Vault with zero manual forms.</p>
+    <div class="ideas">
+      <button class="idea" type="button">
+        <span class="idea-icon">💻</span>
+        <span class="idea-text">Show laptops under $1,200</span>
+      </button>
+      <button class="idea" type="button">
+        <span class="idea-icon">🎧</span>
+        <span class="idea-text">Find wireless noise-canceling headphones</span>
+      </button>
+      <button class="idea" type="button">
+        <span class="idea-icon">🎁</span>
+        <span class="idea-text">Suggest gift fragrances</span>
+      </button>
+      <button class="idea" type="button">
+        <span class="idea-icon">💳</span>
+        <span class="idea-text">Link my PayPal sandbox account</span>
+      </button>
+      <button class="idea" type="button" id="idea-mcp">
+        <span class="idea-icon">🔌</span>
+        <span class="idea-text">Connect external AI (MCP Server)</span>
+      </button>
+    </div>
+  </section>
+</div></main>
+
+<aside class="panel" id="panel" aria-label="Your orders">
+  <div class="ph"><h2>Your Orders</h2><button class="ghost" id="pclose" type="button">Close</button></div>
+  <div id="og" class="ag-theme-host"></div>
+</aside>
+
+<div class="modal-bg" id="cfg-modal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Spending Limits
+      </div>
+      <button class="ghost" id="cfg-close" type="button" aria-label="Close" style="font-size:18px">&times;</button>
+    </div>
+    
+    <p class="modal-desc">Set maximum spending guardrails for your AI shopper. The AI will never charge your PayPal account above these limits without your approval.</p>
+
+    <div class="cfg-presets">
+      <span class="cfg-presets-label">Presets:</span>
+      <button type="button" class="cfg-preset" id="pre-50">$50 / $100</button>
+      <button type="button" class="cfg-preset" id="pre-250">$250 / $500</button>
+      <button type="button" class="cfg-preset" id="pre-800">$800 / $1,000</button>
+    </div>
+
+    <div class="cfg-section">
+      <div class="cfg-label-row">
+        <label for="cfg-order" class="cfg-label">Per-Order Limit</label>
+        <span class="cfg-hint">Max for 1 purchase</span>
+      </div>
+      <div class="cfg-stepper">
+        <button type="button" class="cfg-step-btn" id="order-dec" title="Decrease $10">- $10</button>
+        <div class="cfg-input-wrap">
+          <span class="cfg-currency">$</span>
+          <input type="number" id="cfg-order" min="1" step="5" class="cfg-input" />
+        </div>
+        <button type="button" class="cfg-step-btn" id="order-inc" title="Increase $10">+ $10</button>
+        <button type="button" class="cfg-step-btn" id="order-inc50" title="Increase $50">+ $50</button>
+      </div>
+    </div>
+
+    <div class="cfg-section">
+      <div class="cfg-label-row">
+        <label for="cfg-daily" class="cfg-label">Daily Limit</label>
+        <span class="cfg-hint">Max total today</span>
+      </div>
+      <div class="cfg-stepper">
+        <button type="button" class="cfg-step-btn" id="daily-dec" title="Decrease $25">- $25</button>
+        <div class="cfg-input-wrap">
+          <span class="cfg-currency">$</span>
+          <input type="number" id="cfg-daily" min="1" step="10" class="cfg-input" />
+        </div>
+        <button type="button" class="cfg-step-btn" id="daily-inc" title="Increase $25">+ $25</button>
+        <button type="button" class="cfg-step-btn" id="daily-inc100" title="Increase $100">+ $100</button>
+      </div>
+    </div>
+
+    <div class="cfg-info-box">
+      <div class="cfg-info-row">
+        <span>Spent today (UTC):</span>
+        <strong id="cfg-spent">$0.00</strong>
+      </div>
+      <div class="cfg-progress-wrap">
+        <div class="cfg-progress-bar"><div class="cfg-progress-fill" id="cfg-fill" style="width:0%"></div></div>
+      </div>
+      <div class="cfg-info-row" style="margin-top:4px">
+        <span>Server maximum cap:</span>
+        <strong id="cfg-cap">$200.00</strong>
+      </div>
+      <div class="cfg-cap-note">
+        To allow limits higher than $<span id="cfg-cap-val">200</span>, set <code>MAX_LIMIT</code> in server environment variables.
+      </div>
+    </div>
+
+    <div id="cfg-status" class="cfg-status" hidden></div>
+
+    <div class="modal-foot">
+      <button type="button" class="ghost" id="cfg-cancel">Cancel</button>
+      <button type="button" class="buy" id="cfg-save" style="margin:0;padding:9px 20px">Save Limits</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mcp-modal" hidden>
+  <div class="modal-card" style="width:min(520px,100%)">
+    <div class="modal-head">
+      <div class="modal-title">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+        <span>Model Context Protocol (MCP)</span>
+        <span class="mcp-badge">14 Tools</span>
+      </div>
+      <button class="ghost" id="mcp-close" type="button" aria-label="Close" style="font-size:18px">&times;</button>
+    </div>
+
+    <p class="modal-desc">
+      Connect <strong>Claude Desktop</strong>, <strong>Claude.ai</strong>, <strong>Cursor</strong>, or any MCP client directly to this shop. Your AI can autonomously search live retail products and checkout via your vaulted PayPal sandbox account!
+    </p>
+
+    <div class="mcp-copy-box">
+      <div class="mcp-copy-label">Live MCP Server URL:</div>
+      <div class="mcp-copy-row">
+        <input type="text" id="mcp-url-input" class="mcp-url-field" readonly value="" />
+        <button type="button" id="mcp-copy-btn" class="mcp-copy-btn">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="mcp-copy-txt">Copy URL</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mcp-instructions">
+      <div class="mcp-tab-head">Quick Connection Guide (Claude.ai / Claude Desktop):</div>
+      <div class="mcp-step">
+        <span class="mcp-step-num">1</span>
+        <div>Open Claude <strong>Settings &rarr; Connectors &rarr; Add custom connector</strong>.</div>
+      </div>
+      <div class="mcp-step">
+        <span class="mcp-step-num">2</span>
+        <div>Paste the copied MCP URL above. Leave everything else empty (no API key needed).</div>
+      </div>
+      <div class="mcp-step">
+        <span class="mcp-step-num">3</span>
+        <div>Click <strong>Connect</strong>. In the browser popup, click <strong>Allow</strong>.</div>
+      </div>
+      <div class="mcp-step">
+        <span class="mcp-step-num">4</span>
+        <div>Done! Your external AI client now has all 14 AI Shop & PayPal tools enabled!</div>
+      </div>
+    </div>
+
+    <details class="mcp-details">
+      <summary class="mcp-summary">Or configure via <code>claude_desktop_config.json</code></summary>
+      <div class="mcp-code-wrap">
+        <pre><code id="mcp-config-json"></code></pre>
+        <button type="button" id="mcp-copy-json" class="mcp-copy-mini">Copy Config</button>
+      </div>
+    </details>
+
+    <div class="modal-foot">
+      <button type="button" class="ghost" id="mcp-done">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="sb-modal" hidden>
+  <div class="modal-card" style="width:min(480px,100%)">
+    <div class="modal-head">
+      <div class="modal-title">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#b45309" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>PayPal Sandbox Credentials</span>
+        <span class="mcp-badge" style="background:#fef3c7;color:#92400e;border-color:#fde68a">For Judges</span>
+      </div>
+      <button class="ghost" id="sb-close" type="button" aria-label="Close" style="font-size:18px">&times;</button>
+    </div>
+
+    <p class="modal-desc">
+      Use this pre-configured PayPal Sandbox buyer account when testing the linking flow and purchase authorization. Pre-funded with sandbox currency.
+    </p>
+
+    <div class="sb-creds-box" style="margin-top:0">
+      <div class="scc-grid">
+        <div class="scc-item">
+          <span class="scc-lbl">Email:</span>
+          <code id="sb-email-val">sb-dusil53813583@personal.example.com</code>
+          <button type="button" class="scc-copy" id="sb-copy-email">Copy</button>
+        </div>
+        <div class="scc-item">
+          <span class="scc-lbl">Password:</span>
+          <code id="sb-pass-val">7b;r)VqM</code>
+          <button type="button" class="scc-copy" id="sb-copy-pass">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:12.5px;color:var(--mute);line-height:1.45;background:#f8fafc;padding:10px 12px;border-radius:8px;border:1px solid var(--line)">
+      <strong>Testing Instructions:</strong><br/>
+      1. Click <strong>Link PayPal</strong> in the header (or ask: <em>"Link my PayPal account"</em>).<br/>
+      2. Open the PayPal approval link.<br/>
+      3. Log in with the sandbox credentials above and click <strong>Agree & Continue</strong>.
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="ghost" id="sb-done">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="dock">
+  <form class="box" id="f">
+    <textarea id="t" rows="1" placeholder="Ask for a product, a price range, or your orders" aria-label="Message"></textarea>
+    <button class="send" id="go" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </form>
+  <div class="fine">Sandbox demo. No real money moves, and nothing is charged without your clear yes.</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@33.3.2/dist/ag-grid-community.min.js"></script>
+<script src="/common.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const col = $('col'), log = $('log'), t = $('t'), go = $('go');
+let history = [], busy = false;
+const BAG = '<svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
+
+function down() { log.scrollTop = log.scrollHeight; }
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+function linkify(parent, text) {
+  for (const part of text.split(/(https:\/\/[^\s)]+)/g)) {
+    if (part.startsWith('https://')) { const a = el('a', '', part); a.href = part; a.target = '_blank'; a.rel = 'noopener noreferrer'; parent.appendChild(a); }
+    else parent.appendChild(document.createTextNode(part));
+  }
+}
+const money = (n) => '$' + Number(n).toFixed(2);
+
+function tile(p) {
+  const d = el('div', 'tile'), pic = el('div', 'pic');
+  if (typeof p.thumbnail_url === 'string' && p.thumbnail_url.startsWith('https://')) {
+    const img = el('img'); img.src = p.thumbnail_url; img.alt = p.name; img.loading = 'lazy'; pic.appendChild(img);
+  }
+  if (Number(p.discount_percentage) >= 1) pic.appendChild(el('span', 'off', '-' + Math.round(p.discount_percentage) + '%'));
+  const info = el('div', 'info');
+  info.appendChild(el('div', 'nm', p.name));
+  if (p.brand) info.appendChild(el('div', 'br', p.brand));
+  const pr = el('div', 'pr', money(p.price));
+  if (Number(p.list_price) > Number(p.price)) pr.appendChild(el('s', '', money(p.list_price)));
+  info.appendChild(pr);
+  const inStock = Number(p.stock) > 0;
+  info.appendChild(el('div', 'mt', (p.rating ? '\u2605 ' + Number(p.rating).toFixed(1) + '  \u00b7  ' : '') + (inStock ? p.stock + ' in stock' : 'Out of stock')));
+  const b = el('button', 'buy', 'Buy this'); b.type = 'button'; b.disabled = !inStock;
+  b.onclick = () => send('I want to buy ' + p.name + ' (id ' + p.id + '), quantity 1.');
+  info.appendChild(b);
+  d.append(pic, info);
+  return d;
+}
+
+
+// ---- AG Grid (community) ------------------------------------------------
+const gridOk = () => typeof agGrid !== 'undefined' && agGrid.createGrid;
+const fmtMoney = (p) => (p.value == null ? '' : money(p.value));
+
+function productGrid(products) {
+  const host = el('div', 'ag-theme-host');
+  const cols = [
+    { headerName: '', field: 'thumbnail_url', width: 64, minWidth: 64, sortable: false, filter: false, resizable: false, cellRenderer: (p) => { const i = el('img', 'gimg'); if (p.value) { i.src = p.value; i.alt = ''; i.loading = 'lazy'; } return i; } },
+    { headerName: 'Product', field: 'name', flex: 1, minWidth: 150, tooltipField: 'name', filter: 'agTextColumnFilter' },
+    { headerName: 'Brand', field: 'brand', width: 96, minWidth: 80, filter: 'agTextColumnFilter' },
+    { headerName: 'Price', field: 'price', width: 112, minWidth: 104, sort: 'asc', filter: 'agNumberColumnFilter', valueFormatter: fmtMoney },
+    { headerName: 'Off', field: 'discount_percentage', width: 84, minWidth: 76, filter: 'agNumberColumnFilter', valueFormatter: (p) => (Number(p.value) >= 1 ? Math.round(p.value) + '%' : '') },
+    { headerName: 'Rating', field: 'rating', width: 104, minWidth: 96, filter: 'agNumberColumnFilter', valueFormatter: (p) => (p.value ? '\u2605 ' + Number(p.value).toFixed(1) : '') },
+    { headerName: '', field: 'id', width: 84, minWidth: 84, pinned: 'right', sortable: false, filter: false, resizable: false, cellRenderer: (p) => {
+        const b = el('button', 'gbuy', 'Buy'); b.type = 'button'; b.disabled = !(Number(p.data.stock) > 0);
+        b.onclick = () => send('I want to buy ' + p.data.name + ' (id ' + p.data.id + '), quantity 1.'); return b; } },
+  ];
+  agGrid.createGrid(host, { columnDefs: cols, rowData: products, domLayout: 'autoHeight', rowHeight: 56, suppressCellFocus: true, tooltipShowDelay: 300, defaultColDef: { sortable: true, resizable: true } });
+  return host;
+}
+
+function productBlock(products) {
+  const wrap = el('div');
+  const cards = el('div', 'grid'); products.forEach((p) => cards.appendChild(tile(p)));
+  wrap.appendChild(cards);
+  if (!gridOk() || products.length < 2) return wrap;
+  const tbl = el('div', 'gridwrap'); tbl.hidden = true;
+  const bar = el('div', 'view'), bc = el('button', '', 'Cards'), bt = el('button', '', 'Compare table');
+  bc.type = bt.type = 'button';
+  let built = false;
+  const show = (table) => {
+    cards.hidden = table; tbl.hidden = !table;
+    bc.setAttribute('aria-pressed', String(!table)); bt.setAttribute('aria-pressed', String(table));
+    if (table && !built) { built = true; tbl.appendChild(productGrid(products)); }
+  };
+  bc.onclick = () => show(false); bt.onclick = () => show(true);
+  bar.append(bc, bt); wrap.prepend(bar); wrap.appendChild(tbl); show(false);
+  return wrap;
+}
+
+let ordersApi = null;
+async function openOrders() {
+  const panel = $('panel'); panel.classList.add('open');
+  if (!gridOk()) { $('og').textContent = 'The table library did not load. Check your connection.'; return; }
+  if (!ordersApi) {
+    ordersApi = agGrid.createGrid($('og'), {
+      columnDefs: [
+        { headerName: 'Date', field: 'created_at', width: 150, sort: 'desc', valueFormatter: (p) => new Date(p.value).toLocaleString() },
+        { headerName: 'Status', field: 'status', width: 110 },
+        { headerName: 'Total', field: 'total', width: 100, valueFormatter: (p) => (p.value == null ? '' : money(p.value) + ' ' + (p.data.currency || '')) },
+        { headerName: 'Items', field: 'items', flex: 1, minWidth: 160, valueFormatter: (p) => (Array.isArray(p.value) ? p.value.map((i) => (i.quantity || 1) + '\u00d7 ' + (i.name || i.product_id)).join(', ') : '') },
+      ],
+      rowData: [], suppressCellFocus: true, defaultColDef: { sortable: true, resizable: true, filter: true },
+      overlayNoRowsTemplate: '<span>No orders yet. Buy something and it shows up here.</span>',
+    });
+  }
+  try {
+    const r = await authFetch('/api/orders?limit=20');
+    const j = await r.json();
+    ordersApi.setGridOption('rowData', Array.isArray(j) ? j : []);
+  } catch (e) { /* grid stays empty or redirected */ }
+}
+$('ord').onclick = openOrders;
+$('pclose').onclick = () => $('panel').classList.remove('open');
+
+// ---- Settings Modal (Spending Limits) --------------------------------
+let currentLimits = { per_order_limit: 50, daily_limit: 100, max_allowed: 200, today_spend: 0 };
+
+function updateBudgetUI(data) {
+  if (!data) return;
+  if ($('budget-txt')) $('budget-txt').textContent = 'Limit: $' + data.per_order_limit + ' / $' + data.daily_limit;
+  if ($('cfg-spent')) $('cfg-spent').textContent = money(data.today_spend);
+  if ($('cfg-cap')) $('cfg-cap').textContent = money(data.max_allowed);
+  if ($('cfg-cap-val')) $('cfg-cap-val').textContent = data.max_allowed;
+  if ($('cfg-fill')) {
+    const pct = Math.min(100, Math.round(((Number(data.today_spend) || 0) / Math.max(1, Number(data.daily_limit) || 1)) * 100));
+    $('cfg-fill').style.width = pct + '%';
+  }
+}
+
+async function fetchLimits() {
+  try {
+    const res = await authFetch('/api/settings');
+    if (res.ok) {
+      currentLimits = await res.json();
+      updateBudgetUI(currentLimits);
+    }
+  } catch (e) { /* ignore */ }
+}
+
+async function openSettings() {
+  const modal = $('cfg-modal');
+  modal.hidden = false;
+  $('cfg-status').hidden = true;
+  await fetchLimits();
+  $('cfg-order').value = Number(currentLimits.per_order_limit);
+  $('cfg-daily').value = Number(currentLimits.daily_limit);
+}
+function closeSettings() { $('cfg-modal').hidden = true; }
+$('cfg-btn').onclick = openSettings;
+if ($('budget-chip')) $('budget-chip').onclick = openSettings;
+$('cfg-close').onclick = closeSettings;
+$('cfg-cancel').onclick = closeSettings;
+$('cfg-modal').onclick = (e) => { if (e.target === $('cfg-modal')) closeSettings(); };
+
+function applyPreset(order, daily) {
+  $('cfg-order').value = order;
+  $('cfg-daily').value = daily;
+}
+if ($('pre-50')) $('pre-50').onclick = () => applyPreset(50, 100);
+if ($('pre-250')) $('pre-250').onclick = () => applyPreset(250, 500);
+if ($('pre-800')) $('pre-800').onclick = () => applyPreset(800, 1000);
+
+// ---- MCP Server Modal --------------------------------
+function openMcp() {
+  const mcpUrl = window.location.origin + '/mcp';
+  $('mcp-url-input').value = mcpUrl;
+  $('mcp-config-json').textContent = JSON.stringify({
+    mcpServers: {
+      'ai-shop': {
+        command: 'npx',
+        args: ['-y', 'mcp-remote', mcpUrl]
+      }
+    }
+  }, null, 2);
+  $('mcp-modal').hidden = false;
+}
+function closeMcp() { $('mcp-modal').hidden = true; }
+if ($('mcp-btn')) $('mcp-btn').onclick = openMcp;
+if ($('idea-mcp')) $('idea-mcp').onclick = (e) => { e.stopPropagation(); openMcp(); };
+$('mcp-close').onclick = closeMcp;
+$('mcp-done').onclick = closeMcp;
+$('mcp-modal').onclick = (e) => { if (e.target === $('mcp-modal')) closeMcp(); };
+
+$('mcp-copy-btn').onclick = () => {
+  navigator.clipboard.writeText($('mcp-url-input').value);
+  $('mcp-copy-txt').textContent = 'Copied!';
+  setTimeout(() => { $('mcp-copy-txt').textContent = 'Copy URL'; }, 1800);
+};
+
+$('mcp-copy-json').onclick = () => {
+  navigator.clipboard.writeText($('mcp-config-json').textContent);
+  $('mcp-copy-json').textContent = 'Copied!';
+  setTimeout(() => { $('mcp-copy-json').textContent = 'Copy Config'; }, 1800);
+};
+
+// ---- Sandbox Credentials Helper for Judges ----------------
+function copyText(val, btn) {
+  navigator.clipboard.writeText(val);
+  const old = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = old; }, 1800);
+}
+function openSb() { $('sb-modal').hidden = false; }
+function closeSb() { $('sb-modal').hidden = true; }
+if ($('sb-chip')) $('sb-chip').onclick = openSb;
+if ($('sb-close')) $('sb-close').onclick = closeSb;
+if ($('sb-done')) $('sb-done').onclick = closeSb;
+if ($('sb-modal')) $('sb-modal').onclick = (e) => { if (e.target === $('sb-modal')) closeSb(); };
+if ($('sb-copy-email')) $('sb-copy-email').onclick = () => copyText('sb-dusil53813583@personal.example.com', $('sb-copy-email'));
+if ($('sb-copy-pass')) $('sb-copy-pass').onclick = () => copyText('7b;r)VqM', $('sb-copy-pass'));
+
+$('order-dec').onclick = () => {
+  const v = Math.max(1, Number($('cfg-order').value || 0) - 10);
+  $('cfg-order').value = v;
+};
+$('order-inc').onclick = () => {
+  const cap = currentLimits.max_allowed || 200;
+  const v = Math.min(cap, Number($('cfg-order').value || 0) + 10);
+  $('cfg-order').value = v;
+  if (Number($('cfg-daily').value || 0) < v) $('cfg-daily').value = v;
+};
+$('order-inc50').onclick = () => {
+  const cap = currentLimits.max_allowed || 200;
+  const v = Math.min(cap, Number($('cfg-order').value || 0) + 50);
+  $('cfg-order').value = v;
+  if (Number($('cfg-daily').value || 0) < v) $('cfg-daily').value = v;
+};
+
+$('daily-dec').onclick = () => {
+  const o = Number($('cfg-order').value || 0);
+  const v = Math.max(o, Math.max(1, Number($('cfg-daily').value || 0) - 25));
+  $('cfg-daily').value = v;
+};
+$('daily-inc').onclick = () => {
+  const cap = currentLimits.max_allowed || 200;
+  const v = Math.min(cap, Number($('cfg-daily').value || 0) + 25);
+  $('cfg-daily').value = v;
+};
+$('daily-inc100').onclick = () => {
+  const cap = currentLimits.max_allowed || 200;
+  const v = Math.min(cap, Number($('cfg-daily').value || 0) + 100);
+  $('cfg-daily').value = v;
+};
+
+$('cfg-save').onclick = async () => {
+  const perOrder = Number($('cfg-order').value);
+  const daily = Number($('cfg-daily').value);
+  const st = $('cfg-status');
+  const btn = $('cfg-save');
+
+  if (!perOrder || perOrder <= 0 || !daily || daily <= 0) {
+    st.className = 'cfg-status err';
+    st.textContent = 'Limits must be positive numbers.';
+    st.hidden = false;
+    return;
+  }
+  if (perOrder > daily) {
+    st.className = 'cfg-status err';
+    st.textContent = 'Per-order limit cannot exceed daily limit.';
+    st.hidden = false;
+    return;
+  }
+  const cap = currentLimits.max_allowed || 200;
+  if (perOrder > cap || daily > cap) {
+    st.className = 'cfg-status err';
+    st.textContent = 'Limits cannot exceed server maximum cap of $' + cap + '.';
+    st.hidden = false;
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  st.hidden = true;
+
+  try {
+    const res = await authFetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ per_order_limit: perOrder, daily_limit: daily }),
+    });
+    const j = await res.json();
+    btn.disabled = false;
+    btn.textContent = 'Save Limits';
+    if (!res.ok) {
+      st.className = 'cfg-status err';
+      st.textContent = j.error || 'Failed to save limits.';
+      st.hidden = false;
+    } else {
+      currentLimits.per_order_limit = j.per_order_limit;
+      currentLimits.daily_limit = j.daily_limit;
+      updateBudgetUI(currentLimits);
+      st.className = 'cfg-status ok';
+      st.textContent = 'Limits updated successfully!';
+      st.hidden = false;
+      setTimeout(() => { if (!$('cfg-modal').hidden) closeSettings(); }, 1200);
+    }
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Save Limits';
+    st.className = 'cfg-status err';
+    st.textContent = e.message || 'Network error while saving.';
+    st.hidden = false;
+  }
+};
+
+function addUser(text) {
+  const r = el('div', 'row u'); r.appendChild(el('div', 'bub', text)); col.appendChild(r); down();
+}
+function addBot(text, products, isErr) {
+  const r = el('div', 'row b' + (isErr ? ' err' : ''));
+  const who = el('div', 'who'); who.innerHTML = BAG;
+  const body = el('div', 'body'), bub = el('div', 'bub');
+  linkify(bub, text); body.appendChild(bub);
+  if (products && products.length) body.appendChild(productBlock(products.slice(0, 8)));
+
+  // Interactive Quote Box (PayPal Sandbox Vault Authorization Card)
+  const isChargePrompt = /(?:charge.*paypal.*\(yes\/no\)|shall i charge.*\(yes\/no\)|confirm.*total.*\(yes\/no\))/i.test(text);
+  if (isChargePrompt && !isErr) {
+    const amtMatch = text.match(/\$[\d,]+(?:\.\d{2})?(?:\s*[A-Z]{3})?/i);
+    const amt = amtMatch ? amtMatch[0] : 'Total';
+    const qb = el('div', 'quote-box');
+    qb.innerHTML = `
+      <div class="qb-head">
+        <div class="qb-badge"><i></i> PayPal Sandbox Vault</div>
+        <div class="qb-price">${amt}</div>
+      </div>
+      <div class="qb-text">One-click authorization. Charges your linked PayPal sandbox account with zero manual card forms.</div>
+      <div class="qb-btns">
+        <button type="button" class="qb-btn-yes">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Authorize & Pay with PayPal
+        </button>
+        <button type="button" class="qb-btn-no">Cancel</button>
+      </div>
+    `;
+    qb.querySelector('.qb-btn-yes').onclick = () => send('yes');
+    qb.querySelector('.qb-btn-no').onclick = () => send('no');
+    body.appendChild(qb);
+  }
+
+  // Interactive Limit Exceeded Helper
+  if (/per-order limit|daily limit/i.test(text) && /exceed|lower than/i.test(text) && !isErr) {
+    const lb = el('div', '');
+    lb.style.marginTop = '10px';
+    const btn = el('button', 'ghost', '⚙️ Adjust Spending Limits in Settings');
+    btn.style.border = '1px solid #cbd5e1';
+    btn.style.background = '#fff';
+    btn.onclick = openSettings;
+    lb.appendChild(btn);
+    body.appendChild(lb);
+  }
+
+  // PayPal Sandbox Credentials Helper for Judges
+  const isLinkPrompt = /(?:sandbox\.paypal\.com|approve_url|sandbox buyer account|link.*paypal)/i.test(text);
+  if (isLinkPrompt && !isErr) {
+    const credBox = el('div', 'sb-creds-box');
+    credBox.innerHTML = `
+      <div class="scc-header">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>PayPal Sandbox Credentials (For Hackathon Judges)</span>
+      </div>
+      <div class="scc-grid">
+        <div class="scc-item">
+          <span class="scc-lbl">Email:</span>
+          <code>sb-dusil53813583@personal.example.com</code>
+          <button type="button" class="scc-copy" onclick="copyText('sb-dusil53813583@personal.example.com', this)">Copy</button>
+        </div>
+        <div class="scc-item">
+          <span class="scc-lbl">Password:</span>
+          <code>7b;r)VqM</code>
+          <button type="button" class="scc-copy" onclick="copyText('7b;r)VqM', this)">Copy</button>
+        </div>
+      </div>
+    `;
+    body.appendChild(credBox);
+  }
+
+  r.append(who, body); col.appendChild(r); down();
+}
+function typing() {
+  const r = el('div', 'row b'); const who = el('div', 'who'); who.innerHTML = BAG;
+  const body = el('div', 'body'); const d = el('div', 'dots'); d.append(el('i'), el('i'), el('i'));
+  body.appendChild(d); r.append(who, body); col.appendChild(r); down(); return r;
+}
+
+async function auth() {
+  const tok = await getToken();
+  if (!tok) {
+    window.location.replace('/login');
+    return null;
+  }
+  return tok;
+}
+
+async function refreshPP() {
+  const c = $('pp');
+  try {
+    const r = await authFetch('/api/paypal/status');
+    const j = await r.json();
+    const ok = j.linked === true || j.status === 'ACTIVE';
+    c.className = 'chip ' + (ok ? 'ok' : 'no');
+    c.lastChild.textContent = ok ? 'PayPal linked' : (j.status === 'PENDING' ? 'PayPal pending' : 'Link PayPal');
+    c.onclick = ok ? null : () => send('Link my PayPal account.');
+  } catch (e) { /* chip stays neutral or redirected */ }
+}
+
+async function send(text) {
+  text = (text || '').trim();
+  if (!text || busy) return;
+  busy = true; go.disabled = true;
+  $('hero') && $('hero').remove();
+  addUser(text); t.value = ''; t.style.height = 'auto';
+  const wait = typing();
+  history.push({ role: 'user', content: text });
+  try {
+    const res = await authFetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history })
+    });
+    const j = await res.json();
+    wait.remove();
+    if (!res.ok) {
+      addBot(j.error || ('Something went wrong (' + res.status + ').'), null, true);
+      history.pop();
+    } else {
+      history = j.messages;
+      addBot(j.reply, j.products);
+      refreshPP();
+      fetchLimits();
+    }
+  } catch (e) {
+    wait.remove();
+    addBot(e.message && e.message.includes('Session') ? e.message : 'Network error. Check your connection and try again.', null, true);
+    history.pop();
+  }
+  busy = false; go.disabled = false; t.focus();
+}
+
+$('f').onsubmit = (e) => { e.preventDefault(); send(t.value); };
+t.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(t.value); } });
+t.addEventListener('input', () => { t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 140) + 'px'; });
+document.querySelectorAll('.idea').forEach((b) => {
+  if (b.id === 'idea-mcp') {
+    b.onclick = openMcp;
+  } else {
+    b.onclick = () => send(b.querySelector('.idea-text') ? b.querySelector('.idea-text').textContent : b.textContent);
+  }
+});
+$('out').onclick = async () => {
+  $('out').textContent = 'Signing out...';
+  $('out').disabled = true;
+  await demoLogout();
+  window.location.replace('/login');
+};
+
+(async () => {
+  const tok = await requireAuthOrRedirect();
+  if (!tok) return;
+  await Promise.all([refreshPP(), fetchLimits()]);
+})();
+</script></body></html>

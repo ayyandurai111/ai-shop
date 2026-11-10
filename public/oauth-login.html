@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connect to AI Shop</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:480px;margin:48px auto;padding:0 16px;color:#222}
+  button{padding:10px 18px;margin:6px 8px 6px 0;font-size:15px;cursor:pointer}
+  #allow{background:#1a7f37;color:#fff;border:0;border-radius:6px}
+  #deny{background:#eee;border:0;border-radius:6px}
+  .note{background:#fff7d6;padding:8px 12px;border-radius:6px;font-size:14px}
+  .small{color:#666;font-size:13px}
+  .card{border:1px solid #ddd;border-radius:8px;padding:16px;margin:16px 0}
+</style></head><body>
+<h1>AI Shop</h1>
+<p class="note">SANDBOX demo. No real money is used.</p>
+
+<div id="loading"><p>Loading...</p></div>
+<div id="err" hidden><p id="errmsg"></p></div>
+
+<div id="consent" hidden>
+  <div class="card">
+    <p><strong id="appname"></strong> wants to use your AI Shop account.</p>
+    <p class="small">It will be able to search products and place orders through AI Shop. You will return to <span id="dest"></span> after you choose.</p>
+    <p class="small">You will be signed in as the <strong>shared demo account</strong>. No Google or GitHub login is needed.</p>
+  </div>
+  <button id="allow">Allow</button>
+  <button id="deny">Deny</button>
+</div>
+
+<div id="done" hidden>
+  <p id="donemsg"></p>
+  <p class="small">You can close this tab.</p>
+</div>
+
+<script src="/oauth/login.js"></script>
+</body></html>

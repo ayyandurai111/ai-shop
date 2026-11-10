@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in - AI Shop</title>
+<style>
+:root{--bg:#f8fafc;--ink:#0f172a;--mute:#64748b;--line:#e2e8f0;--navy:#003087;--pp-blue:#0070ba;--pp-hover:#005ea6}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:grid;grid-template-columns:1.1fr 1fr;color:var(--ink);background:var(--bg);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Inter",sans-serif;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--pp-blue);outline-offset:2px}
+.side{background:linear-gradient(155deg,#001e54 0%,#003087 50%,#001438 100%);color:#fff;padding:52px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px rgba(0,0,0,.08)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:750;font-size:20px;letter-spacing:-.02em}
+.mark{width:34px;height:34px;border-radius:10px;background:#fff;display:grid;place-items:center;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.mark svg{width:19px;height:19px;fill:none;stroke:var(--navy);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.tag{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.18);color:#fff;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.25)}
+.side-hero{margin:40px 0}
+.pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;margin-bottom:14px;border:1px solid rgba(255,255,255,.2)}
+.side h2{margin:0 0 16px;font-size:36px;line-height:1.15;letter-spacing:-.03em;max-width:16ch;font-weight:800}
+.side p{margin:0;color:#c7d7f7;max-width:44ch;font-size:15px;line-height:1.6}
+.facts{display:grid;gap:12px;color:#c7d7f7;font-size:13.5px}
+.facts div{border-top:1px solid rgba(255,255,255,.15);padding-top:12px}
+.facts b{color:#fff;font-weight:650}
+.main{display:grid;place-items:center;padding:32px}
+.card{width:100%;max-width:400px;background:#fff;padding:36px 32px;border-radius:16px;border:1px solid var(--line);box-shadow:0 8px 28px rgba(15,23,42,.06)}
+.card h1{margin:0 0 8px;font-size:26px;letter-spacing:-.02em;font-weight:750;color:#0f172a}
+.card p{margin:0 0 24px;color:var(--mute);font-size:14px;line-height:1.5}
+.btn{width:100%;border:0;border-radius:10px;background:linear-gradient(135deg,var(--pp-blue),var(--navy));color:#fff;font:inherit;font-weight:650;font-size:14.5px;padding:13px;cursor:pointer;box-shadow:0 4px 14px rgba(0,112,186,.25);transition:all .15s}
+.btn:hover{background:var(--pp-hover);transform:translateY(-1px)}
+.btn:disabled{background:#cbd5e1;cursor:not-allowed;box-shadow:none;transform:none}
+.alt{display:inline-block;margin-top:14px;color:var(--mute);font-size:13.5px}
+.alt:hover{color:var(--pp-blue);text-decoration:underline}
+#msg{margin:12px 0 0;color:#dc2626;font-size:13.5px}
+.sand{margin-top:24px;padding:12px 14px;border:1px solid #fde68a;background:#fef3c7;color:#92400e;border-radius:10px;font-size:13px;line-height:1.45}
+.copy-btn{border:1px solid #d97706;background:#fff;color:#78350f;border-radius:6px;padding:2px 8px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+.copy-btn:hover{background:#fde68a}
+@media (max-width:860px){body{grid-template-columns:1fr}.side{padding:32px}.side h2{font-size:28px}.facts{display:none}}
+</style></head><body>
+<section class="side">
+  <div class="brand">
+    <span class="mark"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>
+    <span>AI Shop</span>
+    <span class="tag">PayPal Hackathon</span>
+  </div>
+  <div class="side-hero">
+    <div class="pill">⚡ Autonomous Agentic Commerce</div>
+    <h2>The Future of Online Shopping.</h2>
+    <p>Talk to your personal AI shopper. It searches real retailer catalogs in real time, compares specs in AG Grid, and buys securely with your PayPal Sandbox Vault.</p>
+  </div>
+  <div class="facts">
+    <div><b>Zero-Friction Checkout:</b> Payments execute autonomously via PayPal Sandbox Vault tokens. No manual card forms.</div>
+    <div><b>Universal MCP Integration:</b> Connect seamlessly to Claude Desktop, Claude.ai, or custom AI agents via Model Context Protocol.</div>
+    <div><b>Financial Safety Guardrails:</b> Per-order limits, daily spending limits, and mandatory human confirmation.</div>
+  </div>
+</section>
+<main class="main"><div class="card">
+  <div id="signin">
+    <h1>Experience the Future</h1>
+    <p>Sign in with the shared demo account to test live conversational shopping and autonomous PayPal checkout.</p>
+    <button class="btn" id="demo">Continue as Demo User</button>
+    <p id="msg" role="alert"></p>
+  </div>
+  <div id="signedin" hidden>
+    <h1>You are signed in</h1>
+    <p>Signed in as the demo shopper.</p>
+    <a class="btn" href="/chat" style="display:block;text-align:center;text-decoration:none">Enter AI Shop &rarr;</a>
+    <div style="text-align:center;margin-top:14px">
+      <button class="alt" id="out" style="border:0;background:none;cursor:pointer;font:inherit;padding:0">Sign out</button>
+    </div>
+  </div>
+  <div class="sand">
+    <strong>PayPal Sandbox Demo:</strong> Fully isolated test environment.<br/>
+    <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #d97706;font-size:12.5px;color:#78350f">
+      <strong>🔑 Judge PayPal Sandbox Login:</strong><br/>
+      <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span>Email: <code>sb-dusil53813583@personal.example.com</code></span>
+        <button type="button" class="copy-btn" id="copy-email">Copy</button>
+      </div>
+      <div style="margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span>Password: <code>7b;r)VqM</code></span>
+        <button type="button" class="copy-btn" id="copy-pass">Copy</button>
+      </div>
+    </div>
+  </div>
+</div></main>
+<script src="/common.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+
+function copyText(val, btn) {
+  navigator.clipboard.writeText(val);
+  const old = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = old; }, 1800);
+}
+if ($('copy-email')) $('copy-email').onclick = () => copyText('sb-dusil53813583@personal.example.com', $('copy-email'));
+if ($('copy-pass')) $('copy-pass').onclick = () => copyText('7b;r)VqM', $('copy-pass'));
+
+async function render() {
+  const on = !!(await verifySession());
+  $('signin').hidden = on;
+  $('signedin').hidden = !on;
+  if ($('out')) {
+    $('out').textContent = 'Sign out';
+    $('out').disabled = false;
+  }
+}
+
+$('demo').onclick = async () => {
+  $('demo').disabled = true;
+  $('demo').textContent = 'Signing in...';
+  $('msg').textContent = '';
+  try {
+    await demoLogin();
+    window.location.replace('/chat');
+  } catch (e) {
+    $('msg').textContent = e.message;
+    $('demo').disabled = false;
+    $('demo').textContent = 'Continue as Demo User';
+  }
+};
+
+$('out').onclick = async () => {
+  $('out').textContent = 'Signing out...';
+  $('out').disabled = true;
+  await demoLogout();
+  await render();
+};
+
+fetch('/demo/info').then((r) => r.json()).then((i) => {
+  if (!i.demo_enabled) {
+    $('demo').disabled = true;
+    $('msg').textContent = 'The demo account is not configured on this server (DEMO_USER_ID).';
+  }
+}).catch(() => {});
+
+render();
+</script></body></html>

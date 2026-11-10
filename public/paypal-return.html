@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PayPal - AI Shop</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:grid;place-items:center;padding:20px;background:#f3f5f8;color:#0f1a2e;font:15px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+.card{width:100%;max-width:420px;background:#fff;border:1px solid #dde3ec;border-radius:14px;padding:32px;text-align:center}
+.ic{width:52px;height:52px;border-radius:50%;margin:0 auto 16px;display:grid;place-items:center;background:#e8ecf5}
+.ic svg{width:26px;height:26px;fill:none;stroke:#14295c;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ic.ok{background:#e2f5ee}.ic.ok svg{stroke:#0a7a5a}
+.ic.bad{background:#fdeaea}.ic.bad svg{stroke:#a32020}
+.spin{animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+h1{margin:0 0 6px;font-size:21px;letter-spacing:-.01em}
+p{margin:0 0 20px;color:#5b6980}
+a.btn{display:inline-block;background:#14295c;color:#fff;text-decoration:none;font-weight:600;padding:10px 20px;border-radius:9px}
+.sand{margin-top:20px;font-size:12.5px;color:#8a5200}
+</style></head><body>
+<div class="card">
+  <div class="ic" id="ic"><svg class="spin" id="sv" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg></div>
+  <h1 id="h">Finishing your PayPal setup</h1>
+  <p id="msg">One moment.</p>
+  <a class="btn" href="/chat">Back to the shop</a>
+  <div class="sand">Sandbox mode. No real money is used.</div>
+</div>
+<script src="/common.js"></script>
+<script>
+const ICON = { ok: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', bad: '<path d="M6 6l12 12M18 6L6 18"/>' };
+function show(kind, title, text) {
+  const ic = document.getElementById('ic');
+  ic.className = 'ic ' + kind; ic.innerHTML = '<svg viewBox="0 0 24 24">' + ICON[kind] + '</svg>';
+  document.getElementById('h').textContent = title;
+  document.getElementById('msg').textContent = text;
+}
+(async () => {
+  if (new URLSearchParams(location.search).get('cancelled')) return show('bad', 'Linking cancelled', 'Nothing was linked. You can start again from the chat.');
+  const token = await getToken();
+  if (!token) return show('bad', 'Please sign in first', 'Open the login page, continue as the demo user, then reload this page. If your PayPal approval is already done, the chat will pick it up by itself.');
+  try {
+    const res = await fetch('/api/paypal/complete', { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
+    const j = await res.json();
+    if (res.ok) show('ok', 'PayPal linked', 'Your sandbox account is ready. You can now buy from the chat or from any MCP client.');
+    else show('bad', 'Could not finish', j.error || ('Error ' + res.status));
+  } catch (e) { show('bad', 'Network error', 'Check your connection and reload this page.'); }
+})();
+</script></body></html>
