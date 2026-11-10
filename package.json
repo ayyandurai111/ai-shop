@@ -1,6 +1,7 @@
 {
   "name": "ai-shop-mcp",
   "version": "1.0.0",
+  "description": "Autonomous AI shopping assistant and MCP server featuring live Channel3 retail search, AG Grid comparison, and zero-friction vaulted PayPal payments.",
   "license": "MIT",
   "private": true,
   "type": "module",
